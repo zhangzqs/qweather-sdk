@@ -2,6 +2,8 @@
 name = "qweather-http-client"
 version = "0.1.0"
 edition = "2021"
+description = "QWeather HTTP Client"
+license-file = "../LICENSE"
 
 [features]
 default = ["reqwest-http-client"]
