@@ -1,0 +1,11 @@
+[package]
+name = "qweather-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.76"
+qweather-http-client = { path = "../qweather-http-client", features = [
+    "reqwest-http-client",
+] }
+qweather-service = { path = "../qweather-service" }
