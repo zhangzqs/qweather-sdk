@@ -7,14 +7,31 @@ use anyhow::Result;
 use serde::de::DeserializeOwned;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct HttpRequest {
-    pub base_url: String,
+    pub url: String,
     pub query: HashMap<String, String>,
 }
 
+pub struct StaticHttpClientConfigurationProvider {
+    pub key: Option<String>,
+}
+
+impl HttpClientConfigurationProvider for StaticHttpClientConfigurationProvider {
+    fn get_key(&self) -> Option<&str> {
+        if let Some(ref key) = self.key {
+            Some(key)
+        } else {
+            None
+        }
+    }
+}
+
+pub trait HttpClientConfigurationProvider {
+    fn get_key(&self) -> Option<&str>;
+}
+
 pub trait AHttpClient {
-    fn set_key(&mut self, key: Option<String>);
-    fn get_key(&self) -> Option<String>;
+    type Configuration: HttpClientConfigurationProvider;
     fn get<T: DeserializeOwned>(&self, req: HttpRequest) -> Result<T>;
 }

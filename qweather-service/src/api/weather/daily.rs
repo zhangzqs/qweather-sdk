@@ -1,4 +1,3 @@
-use chrono::{NaiveDate, NaiveTime};
 use serde::Deserialize;
 
 use crate::common::refer::Refer;
@@ -26,16 +25,16 @@ impl Days {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct DailyData {
-    #[serde(rename = "fxDate", with = "date_format")]
-    pub fx_date: NaiveDate,
-    #[serde(with = "time_format")]
-    pub sunrise: Option<NaiveTime>,
-    #[serde(with = "time_format")]
-    pub sunset: Option<NaiveTime>,
-    #[serde(with = "time_format")]
-    pub moonrise: Option<NaiveTime>,
-    #[serde(with = "time_format")]
-    pub moonset: Option<NaiveTime>,
+    // #[serde(rename = "fxDate", with = "date_format")]
+    // pub fx_date: NaiveDate,
+    // #[serde(with = "time_format")]
+    // pub sunrise: Option<NaiveTime>,
+    // #[serde(with = "time_format")]
+    // pub sunset: Option<NaiveTime>,
+    // #[serde(with = "time_format")]
+    // pub moonrise: Option<NaiveTime>,
+    // #[serde(with = "time_format")]
+    // pub moonset: Option<NaiveTime>,
     #[serde(rename = "moonPhase")]
     pub moon_phase: String,
     #[serde(rename = "moonPhaseIcon")]
@@ -75,41 +74,6 @@ pub struct DailyData {
     pub cloud: i32,
     #[serde(rename = "uvIndex")]
     pub uv_index: i32,
-}
-
-mod date_format {
-    use chrono::{NaiveDate};
-    use serde::{self, Deserialize, Deserializer};
-
-    const FORMAT: &str = "%Y-%m-%d";
-
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let s = String::deserialize(deserializer)?;
-        NaiveDate::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)
-    }
-}
-
-mod time_format {
-    use chrono::{NaiveTime};
-    use serde::{self, Deserialize, Deserializer};
-
-    const FORMAT: &str = "%H:%M";
-
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveTime>, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let s = Option::<String>::deserialize(deserializer)?;
-        match s {
-            Some(str_val) => NaiveTime::parse_from_str(&str_val, "%H:%M")
-                .map(Some)
-                .map_err(serde::de::Error::custom),
-            None => Ok(None),
-        }
-    }
 }
 
 #[derive(Deserialize, Debug, Clone)]

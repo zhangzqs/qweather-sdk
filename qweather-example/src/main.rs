@@ -1,16 +1,28 @@
 use anyhow::{Ok, Result};
-use qweather_http_client::{AHttpClient, ReqwestHttpClient};
-use qweather_service::{CityLookUpInput, GeoAPI, LocationInput};
+use qweather_http_client::{ReqwestHttpClient, StaticHttpClientConfigurationProvider};
+use qweather_service::{CityLookUpInput, GeoAPI, LocationInput, Weather, WeatherInput};
 
 const KEY: &str = include_str!("../key");
 fn main() -> Result<()> {
-    let mut client = ReqwestHttpClient::new()?;
-    client.set_key(Some(KEY.to_string()));
+    // std::env::set_var("RUSTLOG", "debug");
+    env_logger::init();
+    log::debug!("Hello");
+    let client = ReqwestHttpClient::new(StaticHttpClientConfigurationProvider {
+        key: Some(KEY.into()),
+    })?;
     let geo = GeoAPI::new(&client);
     let ret = geo.city_lookup(&CityLookUpInput {
-        location: LocationInput::Text("上海".to_string()),
+        location: LocationInput::Text("浦东".to_string()),
         ..Default::default()
     })?;
     println!("{:#?}", ret);
+    let output = &ret.location[0];
+
+    let weather = Weather::new(&client);
+    let w = weather.now(&WeatherInput {
+        location: LocationInput::ID(output.id.clone()),
+        ..Default::default()
+    })?;
+    println!("{:#?}", w);
     Ok(())
 }

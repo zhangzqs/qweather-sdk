@@ -14,10 +14,10 @@ impl<'a, C: AHttpClient> GeoAPI<'a, C> {
     }
 }
 
-impl<'a, C: AHttpClient> GeoAPI<'a, C> {
-    pub fn city_lookup(&self, input: &'a CityLookUpInput) -> Result<CityLookUpOutput> {
+impl<C: AHttpClient> GeoAPI<'_, C> {
+    pub fn city_lookup(&self, input: &CityLookUpInput) -> Result<CityLookUpOutput> {
         self.client.get(HttpRequest {
-            base_url: "https://geoapi.qweather.com/v2/city/lookup".to_string(),
+            url: "https://geoapi.qweather.com/v2/city/lookup".to_string(),
             query: input.to_hash_map(),
         })
     }

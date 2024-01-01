@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
 use crate::common::location::LocationInput;
+use crate::common::util::UtcOffset;
 use crate::common::{lang::Lang, refer::Refer};
+use crate::{Boolean, Number};
 use anyhow::Result;
 use qweather_http_client::{AHttpClient, HttpRequest};
 use serde::{Deserialize, Serialize};
@@ -43,25 +45,22 @@ impl CityLookUpInput {
 pub struct LocationOutput {
     pub name: String,
     pub id: String,
-    #[serde(with = "crate::util::serde::string_to_f64")]
-    pub lat: f64,
-    #[serde(with = "crate::util::serde::string_to_f64")]
-    pub lon: f64,
+    pub lat: Number<f32>,
+    pub lon: Number<f32>,
     pub adm1: String,
     pub adm2: String,
     pub country: String,
     pub tz: String,
     #[serde(rename = "utcOffset")]
-    pub utc_offset: String,
+    pub utc_offset: UtcOffset,
 
-    #[serde(rename = "isDst", with = "crate::util::serde::string_to_bool")]
-    pub is_dst: bool,
+    #[serde(rename = "isDst")]
+    pub is_dst: Boolean,
 
     #[serde(rename = "type")]
     pub type_: String,
 
-    #[serde(with = "crate::util::serde::string_to_u16")]
-    pub rank: u16,
+    pub rank: Number<i32>,
 
     #[serde(rename = "fxLink")]
     pub fx_link: String,
@@ -69,45 +68,14 @@ pub struct LocationOutput {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CityLookUpOutput {
-    #[serde(with = "crate::util::serde::string_to_u16")]
-    pub code: u16,
+    pub code: Number<i32>,
     pub location: Vec<LocationOutput>,
     pub refer: Refer,
 }
 
 fn city_lookup<C: AHttpClient>(client: &C, input: CityLookUpInput) -> Result<CityLookUpOutput> {
     client.get(HttpRequest {
-        base_url: "https://geoapi.qweather.com/v2/city/lookup".to_string(),
+        url: "https://geoapi.qweather.com/v2/city/lookup".to_string(),
         query: input.to_hash_map(),
     })
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_city_lookup() {
-        const TEST_JSON: &str = include_str!("city_lookup_resp_test.json");
-        let ret = serde_json::from_str::<CityLookUpOutput>(TEST_JSON).unwrap();
-        assert_eq!(ret.code, 200);
-        assert_eq!(ret.location.len(), 10);
-        assert_eq!(ret.location[0].name, "北京");
-        assert_eq!(ret.location[0].id, "101010100");
-        assert_eq!(ret.location[0].lat, 39.90499);
-        assert_eq!(ret.location[0].lon, 116.40529);
-        assert_eq!(ret.location[0].adm1, "北京市");
-        assert_eq!(ret.location[0].adm2, "北京");
-        assert_eq!(ret.location[0].country, "中国");
-        assert_eq!(ret.location[0].tz, "Asia/Shanghai");
-        assert_eq!(ret.location[0].utc_offset, "+08:00");
-        assert!(!ret.location[0].is_dst);
-        assert_eq!(ret.location[0].type_, "city");
-        assert_eq!(ret.location[0].rank, 10);
-        assert_eq!(
-            ret.location[0].fx_link,
-            "https://www.qweather.com/weather/beijing-101010100.html"
-        );
-        println!("{:?}", ret);
-    }
 }

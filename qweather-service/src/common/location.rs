@@ -3,7 +3,8 @@ use serde::Serialize;
 #[derive(Serialize, Debug, Clone)]
 pub enum LocationInput {
     Text(String),
-    LatLong(f64, f64),
+    ID(String),
+    LatLong(f32, f32),
 }
 
 impl Default for LocationInput {
@@ -14,9 +15,10 @@ impl Default for LocationInput {
 
 impl From<LocationInput> for String {
     fn from(val: LocationInput) -> Self {
+        use LocationInput::{LatLong, Text, ID};
         match val {
-            LocationInput::Text(text) => text,
-            LocationInput::LatLong(lat, long) => format!("{},{}", lat, long),
+            Text(text) | ID(text) => text,
+            LatLong(lat, long) => format!("{},{}", lat, long),
         }
     }
 }
