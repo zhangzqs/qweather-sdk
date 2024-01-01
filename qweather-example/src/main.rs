@@ -1,5 +1,7 @@
 use anyhow::{Ok, Result};
-use qweather_http_client::{ReqwestHttpClient, StaticHttpClientConfigurationProvider};
+use qweather_http_client::{
+    ReqwestHttpClient, StaticHttpClientConfigurationProvider, WEATHER_DEV_API_URL,
+};
 use qweather_service::{CityLookUpInput, GeoAPI, LocationInput, Weather, WeatherInput};
 
 const KEY: &str = include_str!("../key");
@@ -8,7 +10,9 @@ fn main() -> Result<()> {
     env_logger::init();
     log::debug!("Hello");
     let client = ReqwestHttpClient::new(StaticHttpClientConfigurationProvider {
-        key: Some(KEY.into()),
+        key: Some(KEY),
+        weather_base_url: Some(WEATHER_DEV_API_URL),
+        ..Default::default()
     })?;
     let geo = GeoAPI::new(&client);
     let ret = geo.city_lookup(&CityLookUpInput {

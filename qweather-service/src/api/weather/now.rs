@@ -2,7 +2,7 @@ use anyhow::Result;
 use serde::Deserialize;
 
 use crate::{common::refer::Refer, Number, UtcDateTime};
-use qweather_http_client::{AHttpClient, HttpRequest};
+use qweather_http_client::{AHttpClient, HttpRequest, HttpClientConfigurationProvider};
 
 use super::WeatherInput;
 
@@ -71,8 +71,9 @@ pub struct NowOutput {
 }
 
 pub fn now<C: AHttpClient>(client: &C, input: &WeatherInput) -> Result<NowOutput> {
+    let url = client.config().weather_base_url();
     client.get(HttpRequest {
-        url: "https://devapi.qweather.com/v7/weather/now".to_string(),
+        url: format!("{url}/v7/weather/now"),
         query: input.to_hash_map(),
     })
 }

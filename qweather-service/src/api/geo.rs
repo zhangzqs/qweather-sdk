@@ -1,4 +1,4 @@
-use qweather_http_client::{AHttpClient, HttpRequest};
+use qweather_http_client::AHttpClient;
 
 pub use self::city_lookup::{CityLookUpInput, CityLookUpOutput};
 use anyhow::Result;
@@ -16,9 +16,6 @@ impl<'a, C: AHttpClient> GeoAPI<'a, C> {
 
 impl<C: AHttpClient> GeoAPI<'_, C> {
     pub fn city_lookup(&self, input: &CityLookUpInput) -> Result<CityLookUpOutput> {
-        self.client.get(HttpRequest {
-            url: "https://geoapi.qweather.com/v2/city/lookup".to_string(),
-            query: input.to_hash_map(),
-        })
+        city_lookup::city_lookup(self.client, input)
     }
 }
