@@ -6,7 +6,7 @@ use qweather_service::{CityLookUpInput, GeoAPI, LocationInput, Weather, WeatherI
 
 const KEY: &str = include_str!("../key");
 fn main() -> Result<()> {
-    // std::env::set_var("RUSTLOG", "debug");
+    std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
     log::debug!("Hello");
     let client = ReqwestHttpClient::new(StaticHttpClientConfigurationProvider {
