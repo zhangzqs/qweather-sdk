@@ -16,17 +16,21 @@ impl<C: AsyncHttpClientConfigurationProvider> ReqwestHttpAsyncClient<C> {
 }
 
 #[async_trait(?Send)]
-impl<C: AsyncHttpClientConfigurationProvider+Send> super::AsyncHttpClient for ReqwestHttpAsyncClient<C> {
+impl<C: AsyncHttpClientConfigurationProvider + Send> super::AsyncHttpClient
+    for ReqwestHttpAsyncClient<C>
+{
     type ConfigProvider = C;
     fn config(&self) -> &Self::ConfigProvider {
         &self.config_provider
     }
     async fn get<T: serde::de::DeserializeOwned>(&self, req: crate::HttpRequest) -> Result<T> {
         let mut query = req.query;
-        let key = self.config_provider.key().await;
-        if !query.contains_key("key") && key.is_some() {
-            query.insert("key".into(), key.unwrap().into());
+        if let Some(key) = self.config_provider.key().await {
+            if !query.contains_key("key") {
+                query.insert("key".into(), key.into());
+            }
         }
+
         let req_builder = self.client.get(req.url).query(&query);
         if let Some(r) = req_builder.try_clone() {
             let t = r.send().await?;

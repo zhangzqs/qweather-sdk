@@ -91,6 +91,5 @@ mod tests {
         const TEST_JSON: &str = include_str!("now_resp_test.json");
         let ret = serde_json::from_str::<NowOutput>(TEST_JSON).unwrap();
         println!("{:#?}", ret);
-        assert!(false);
     }
 }
