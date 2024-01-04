@@ -11,3 +11,4 @@ qweather-http-client = { path = "../qweather-http-client", features = [
     "reqwest-http-client",
 ] }
 qweather-service = { path = "../qweather-service" }
+tokio = { version = "1.35.1", features = ["macros", "rt-multi-thread"] }

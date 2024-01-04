@@ -3,7 +3,7 @@ use anyhow::Result;
 use std::collections::HashMap;
 
 use crate::common::{lang::Lang, location::LocationInput, unit::Unit};
-use qweather_http_client::AHttpClient;
+use qweather_http_client::AsyncHttpClient;
 
 use self::now::NowOutput;
 
@@ -38,16 +38,16 @@ mod daily;
 mod hourly;
 mod now;
 
-pub struct Weather<'a, C: AHttpClient> {
+pub struct Weather<'a, C: AsyncHttpClient> {
     client: &'a C,
 }
 
-impl<'a, C: AHttpClient> Weather<'a, C> {
+impl<'a, C: AsyncHttpClient> Weather<'a, C> {
     pub fn new(client: &'a C) -> Weather<'a, C> {
         Self { client }
     }
 
-    pub fn now(&self, input: &WeatherInput) -> Result<NowOutput> {
-        now::now(self.client, input)
+    pub async fn now(&self, input: &WeatherInput) -> Result<NowOutput> {
+        now::now(self.client, input).await
     }
 }
