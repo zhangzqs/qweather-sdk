@@ -34,8 +34,8 @@ impl WeatherInput {
     }
 }
 
-mod daily;
-mod hourly;
+// mod daily;
+// mod hourly;
 mod now;
 
 pub struct Weather<'a, C: AsyncHttpClient> {
