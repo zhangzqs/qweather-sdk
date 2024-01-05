@@ -2,9 +2,7 @@ use anyhow::Result;
 use serde::Deserialize;
 
 use crate::{common::refer::Refer, Number, UtcDateTime};
-use qweather_http_client::{
-    AsyncHttpClient, HttpRequest, AsyncHttpClientConfigurationProvider as _,
-};
+use qweather_http_client::{Api, AsyncHttpClient, HttpRequest};
 
 use super::WeatherInput;
 
@@ -73,10 +71,10 @@ pub struct NowOutput {
 }
 
 pub async fn now<C: AsyncHttpClient>(client: &C, input: &WeatherInput) -> Result<NowOutput> {
-    let url = client.config().weather_base_url().await;
     client
         .get(HttpRequest {
-            url: format!("{url}/v7/weather/now"),
+            api: Api::Weather,
+            path: "/v7/weather/now".into(),
             query: input.to_hash_map(),
         })
         .await

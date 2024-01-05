@@ -1,42 +1,68 @@
-use crate::config::AsyncHttpClientConfigurationProvider;
 use anyhow::Result;
 use async_trait::async_trait;
-pub struct ReqwestHttpAsyncClient<C> {
-    config_provider: C,
-    client: reqwest::Client,
+
+pub struct ReqwestHttpAsyncClientConfiguration {
+    pub key: String,
+    pub weather_base_url: Option<String>,
+    pub geo_base_url: Option<String>,
 }
 
-impl<C: AsyncHttpClientConfigurationProvider> ReqwestHttpAsyncClient<C> {
-    pub fn new(config_provider: C) -> Result<Self> {
+impl Default for ReqwestHttpAsyncClientConfiguration {
+    fn default() -> Self {
+        Self {
+            key: "".into(),
+            weather_base_url: None,
+            geo_base_url: None,
+        }
+    }
+}
+
+pub struct ReqwestHttpAsyncClient {
+    client: reqwest::Client,
+    key: String,
+    weather_base_url: Option<String>,
+    geo_base_url: Option<String>,
+}
+
+impl ReqwestHttpAsyncClient {
+    pub fn new(conf: &ReqwestHttpAsyncClientConfiguration) -> Result<Self> {
         Ok(Self {
             client: reqwest::ClientBuilder::new().gzip(true).build()?,
-            config_provider,
+            key: conf.key.clone(),
+            weather_base_url: conf.weather_base_url.clone(),
+            geo_base_url: conf.geo_base_url.clone(),
         })
     }
 }
 
-#[async_trait(?Send)]
-impl<C: AsyncHttpClientConfigurationProvider + Send> super::AsyncHttpClient
-    for ReqwestHttpAsyncClient<C>
-{
-    type ConfigProvider = C;
-    fn config(&self) -> &Self::ConfigProvider {
-        &self.config_provider
-    }
-    async fn get<T: serde::de::DeserializeOwned>(&self, req: crate::HttpRequest) -> Result<T> {
+impl super::AsyncHttpClient for ReqwestHttpAsyncClient {
+    fn get<T: serde::de::DeserializeOwned>(
+        &self,
+        req: crate::HttpRequest,
+    ) -> impl std::future::Future<Output = Result<T>> + Send {
         let mut query = req.query;
-        if let Some(key) = self.config_provider.key().await {
-            if !query.contains_key("key") {
-                query.insert("key".into(), key.into());
-            }
+        if !query.contains_key("key") {
+            query.insert("key".into(), self.key.clone());
         }
 
-        let req_builder = self.client.get(req.url).query(&query);
-        if let Some(r) = req_builder.try_clone() {
-            let t = r.send().await?;
-            println!("url: {}", t.url());
-            println!("debug: {}", t.text().await?);
-        }
-        Ok(req_builder.send().await?.json::<T>().await?)
+        let url = match req.api {
+            crate::Api::Geo => {
+                if let Some(url) = &self.geo_base_url {
+                    format!("{}{}", url, req.path)
+                } else {
+                    format!("{}{}", crate::GEO_API_URL, req.path)
+                }
+            }
+            crate::Api::Weather => {
+                if let Some(url) = &self.weather_base_url {
+                    format!("{}{}", url, req.path)
+                } else {
+                    format!("{}{}", crate::WEATHER_DEV_API_URL, req.path)
+                }
+            }
+        };
+
+        let req_builder = self.client.get(url).query(&query);
+        async move { Ok(req_builder.send().await?.json::<T>().await?) }
     }
 }

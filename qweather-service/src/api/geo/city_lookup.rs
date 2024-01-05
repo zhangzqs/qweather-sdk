@@ -5,7 +5,7 @@ use crate::common::util::UtcOffset;
 use crate::common::{lang::Lang, refer::Refer};
 use crate::{Boolean, Number};
 use anyhow::Result;
-use qweather_http_client::{AsyncHttpClient, HttpRequest, AsyncHttpClientConfigurationProvider as _};
+use qweather_http_client::{Api, AsyncHttpClient, HttpRequest};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Debug, Clone, Default)]
@@ -77,10 +77,10 @@ pub async fn city_lookup<C: AsyncHttpClient>(
     client: &C,
     input: &CityLookUpInput,
 ) -> Result<CityLookUpOutput> {
-    let url = client.config().geo_base_url().await;
     client
         .get(HttpRequest {
-            url: format!("{url}/v2/city/lookup"),
+            api: Api::Geo,
+            path: format!("/v2/city/lookup"),
             query: input.to_hash_map(),
         })
         .await
