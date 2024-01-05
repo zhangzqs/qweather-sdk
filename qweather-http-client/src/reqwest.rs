@@ -1,5 +1,4 @@
 use anyhow::Result;
-use async_trait::async_trait;
 
 pub struct ReqwestHttpAsyncClientConfiguration {
     pub key: String,
