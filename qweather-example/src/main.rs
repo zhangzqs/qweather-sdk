@@ -1,6 +1,6 @@
 use anyhow::{Ok, Result};
 use qweather_http_client::{StaticHttpClientConfigurationProvider, WEATHER_DEV_API_URL, ReqwestHttpAsyncClient};
-use qweather_service::{CityLookUpInput, GeoAPI, LocationInput, Weather, WeatherInput};
+use qweather_service::{CityLookUpInput, GeoApi, LocationInput, Weather, WeatherInput};
 
 const KEY: &str = include_str!("../key");
 
@@ -14,7 +14,7 @@ async fn main() -> Result<()> {
         weather_base_url: Some(WEATHER_DEV_API_URL),
         ..Default::default()
     })?;
-    let geo = GeoAPI::new(&client);
+    let geo = GeoApi::new(&client);
     let ret = geo.city_lookup(&CityLookUpInput {
         location: LocationInput::Text("浦东".to_string()),
         ..Default::default()

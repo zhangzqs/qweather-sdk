@@ -1,6 +1,6 @@
 mod api;
 pub use api::{
-    geo::{CityLookUpInput, CityLookUpOutput, GeoAPI},
+    geo::{CityLookUpInput, CityLookUpOutput, GeoApi},
     weather::{Weather, WeatherInput},
 };
 
