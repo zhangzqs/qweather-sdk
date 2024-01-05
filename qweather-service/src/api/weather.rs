@@ -1,5 +1,3 @@
-use anyhow::Result;
-
 use std::collections::HashMap;
 
 use crate::common::{lang::Lang, location::LocationInput, unit::Unit};
@@ -47,7 +45,7 @@ impl<'a, C: AsyncHttpClient> Weather<'a, C> {
         Self { client }
     }
 
-    pub async fn now(&self, input: &WeatherInput) -> Result<NowOutput> {
+    pub async fn now(&self, input: &WeatherInput) -> Result<NowOutput, C::Error> {
         now::now(self.client, input).await
     }
 }

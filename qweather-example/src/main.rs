@@ -21,7 +21,7 @@ async fn main() -> Result<()> {
         })
         .await?;
     println!("{:#?}", ret);
-    let output = &ret.location[0];
+    let output = &ret.location.unwrap()[0];
 
     let weather = Weather::new(&client);
     let w = weather

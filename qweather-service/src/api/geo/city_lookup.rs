@@ -4,7 +4,6 @@ use crate::common::location::LocationInput;
 use crate::common::util::UtcOffset;
 use crate::common::{lang::Lang, refer::Refer};
 use crate::{Boolean, Number};
-use anyhow::Result;
 use qweather_http_client::{Api, AsyncHttpClient, HttpRequest};
 use serde::{Deserialize, Serialize};
 
@@ -69,18 +68,18 @@ pub struct LocationOutput {
 #[derive(Deserialize, Debug, Clone)]
 pub struct CityLookUpOutput {
     pub code: Number<i32>,
-    pub location: Vec<LocationOutput>,
-    pub refer: Refer,
+    pub location: Option<Vec<LocationOutput>>,
+    pub refer: Option<Refer>,
 }
 
 pub async fn city_lookup<C: AsyncHttpClient>(
     client: &C,
     input: &CityLookUpInput,
-) -> Result<CityLookUpOutput> {
+) -> Result<CityLookUpOutput, C::Error> {
     client
         .get(HttpRequest {
             api: Api::Geo,
-            path: format!("/v2/city/lookup"),
+            path: "/v2/city/lookup".to_string(),
             query: input.to_hash_map(),
         })
         .await

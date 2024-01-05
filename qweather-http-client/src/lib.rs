@@ -1,4 +1,3 @@
-use anyhow::Result;
 use serde::de::DeserializeOwned;
 use std::{collections::HashMap, future::Future};
 
@@ -26,5 +25,9 @@ pub struct HttpRequest {
 }
 
 pub trait AsyncHttpClient {
-    fn get<T: DeserializeOwned>(&self, req: HttpRequest) -> impl Future<Output = Result<T>> + Send;
+    type Error;
+    fn get<T: DeserializeOwned>(
+        &self,
+        req: HttpRequest,
+    ) -> impl Future<Output = Result<T, Self::Error>> + Send;
 }

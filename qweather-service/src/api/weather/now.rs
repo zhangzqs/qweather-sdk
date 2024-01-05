@@ -1,4 +1,3 @@
-use anyhow::Result;
 use serde::Deserialize;
 
 use crate::{common::refer::Refer, Number, UtcDateTime};
@@ -63,14 +62,14 @@ pub struct NowData {
 pub struct NowOutput {
     pub code: Number<i32>,
     #[serde(rename = "updateTime")]
-    pub update_time: UtcDateTime,
+    pub update_time: Option<UtcDateTime>,
     #[serde(rename = "fxLink")]
-    pub fx_link: String,
-    pub now: NowData,
-    pub refer: Refer,
+    pub fx_link: Option<String>,
+    pub now: Option<NowData>,
+    pub refer: Option<Refer>,
 }
 
-pub async fn now<C: AsyncHttpClient>(client: &C, input: &WeatherInput) -> Result<NowOutput> {
+pub async fn now<C: AsyncHttpClient>(client: &C, input: &WeatherInput) -> Result<NowOutput, C::Error> {
     client
         .get(HttpRequest {
             api: Api::Weather,
